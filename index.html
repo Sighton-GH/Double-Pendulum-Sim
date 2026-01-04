@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Double Pendulum Simulator</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="app" class="app">
+      <header class="topbar" aria-label="Page header">
+        <div class="topbar-title">Double Pendulum Simulator</div>
+
+        <nav class="tabs" aria-label="Views">
+          <button class="tab-btn active" type="button" data-tab="sim" aria-current="page">Simulation</button>
+          <button class="tab-btn" type="button" data-tab="angles">Angles vs Time</button>
+          <button class="tab-btn" type="button" data-tab="velocities">Velocities vs Time</button>
+          <button class="tab-btn" type="button" data-tab="phase">Angles vs Each Other</button>
+        </nav>
+
+        <div class="topbar-right" aria-label="Header actions">
+          <button id="themeToggle" class="btn btn-icon theme-toggle" title="Toggle light/dark mode" aria-label="Toggle light/dark mode">
+            <span id="themeToggleLabel" class="icon">☾</span>
+          </button>
+
+          <button id="btnRecord" class="btn record-btn" type="button" title="Toggle recording">
+            <span id="recordLabel">Record</span>
+          </button>
+
+          <button id="btnDownload" class="btn btn-icon download-btn" type="button" title="Download spreadsheet" aria-label="Download spreadsheet" style="display:none;">
+            <span class="icon">⬇</span>
+          </button>
+        </div>
+      </header>
+
+      <div id="content" class="content">
+        <div id="plot" class="plot" aria-label="Graph view">
+          <canvas id="plotCanvas"></canvas>
+        </div>
+
+        <div class="render" id="render">
+          <canvas id="canvas"></canvas>
+
+          <div id="graphSimControls" class="graph-sim-controls" aria-label="Graph simulation controls">
+            <button id="graphStepBack" class="btn btn-icon" type="button" title="Step back">
+              <span class="icon">◀</span>
+            </button>
+            <button id="graphPlay" class="btn btn-primary" type="button" title="Play / pause">
+              <span id="graphPlayLabel">Play</span>
+            </button>
+            <button id="graphStepForward" class="btn btn-icon" type="button" title="Step forward">
+              <span class="icon">▶</span>
+            </button>
+          </div>
+        </div>
+
+        <aside class="panel" id="panel" aria-label="Controls panel">
+          <div class="panel-inner">
+            <div class="panel-header">
+              <div class="panel-title">Controls</div>
+              <button id="btnAbout" class="btn btn-icon panel-icon" title="About / Hotkeys" aria-label="About / Hotkeys">
+                <span class="icon">?</span>
+              </button>
+            </div>
+
+          <div class="button-row">
+            <button id="btnStepBack" class="btn btn-icon" title="Step back">
+              <span class="icon">◀</span>
+            </button>
+            <button id="btnStart" class="btn btn-primary" title="Start / pause">
+              <span id="startLabel">Play</span>
+            </button>
+            <button id="btnStepForward" class="btn btn-icon" title="Step forward">
+              <span class="icon">▶</span>
+            </button>
+          </div>
+
+          <div class="button-row">
+            <button id="btnReset" class="btn">Reset</button>
+            <button id="btnRandom" class="btn">Randomize</button>
+          </div>
+
+          <div class="options">
+            <div class="options-header">
+              <div class="options-title">Options</div>
+              <button id="btnToggleOptions" class="btn btn-icon panel-icon" title="Hide/show options" aria-label="Hide/show options">
+                <span id="optionsToggleIcon" class="icon">▾</span>
+              </button>
+            </div>
+
+            <div class="option-row">
+              <div class="option-label">Trail</div>
+              <label class="toggle">
+                <input id="optTrail" type="checkbox" />
+                <span class="toggle-ui"></span>
+              </label>
+            </div>
+
+            <div class="option-row">
+              <div class="option-label">Energy</div>
+              <label class="toggle">
+                <input id="optEnergy" type="checkbox" />
+                <span class="toggle-ui"></span>
+              </label>
+            </div>
+
+            <div class="option-row">
+              <div class="option-label">Velocity Arrows</div>
+              <label class="toggle">
+                <input id="optArrows" type="checkbox" />
+                <span class="toggle-ui"></span>
+              </label>
+            </div>
+
+            <div class="option-row">
+              <div class="option-label">Arrow Magnitudes</div>
+              <label class="toggle">
+                <input id="optArrowMag" type="checkbox" />
+                <span class="toggle-ui"></span>
+              </label>
+            </div>
+
+            <div class="option-row">
+              <div class="option-label">Angles</div>
+              <label class="toggle">
+                <input id="optAngles" type="checkbox" />
+                <span class="toggle-ui"></span>
+              </label>
+            </div>
+
+            <div class="option-row">
+              <div class="option-label">Angle Radians</div>
+              <label class="toggle">
+                <input id="optRadians" type="checkbox" />
+                <span class="toggle-ui"></span>
+              </label>
+            </div>
+
+            <div class="option-row">
+              <div class="option-label">Slow Motion</div>
+              <label class="toggle">
+                <input id="optSlow" type="checkbox" />
+                <span class="toggle-ui"></span>
+              </label>
+            </div>
+          </div>
+
+            <div class="sliders" id="sliders">
+            <div class="slider" data-key="L1">
+              <label class="slider-label" for="rngL1">Length 1 (m)</label>
+              <div class="slider-row">
+                <input id="rngL1" type="range" min="0.4" max="2.5" step="0.01" />
+                <input id="numL1" type="number" min="0.4" max="2.5" step="0.01" />
+              </div>
+            </div>
+
+            <div class="slider" data-key="L2">
+              <label class="slider-label" for="rngL2">Length 2 (m)</label>
+              <div class="slider-row">
+                <input id="rngL2" type="range" min="0.4" max="2.5" step="0.01" />
+                <input id="numL2" type="number" min="0.4" max="2.5" step="0.01" />
+              </div>
+            </div>
+
+            <div class="slider" data-key="m1">
+              <label class="slider-label" for="rngM1">Mass 1 (kg)</label>
+              <div class="slider-row">
+                <input id="rngM1" type="range" min="0.5" max="5.0" step="0.05" />
+                <input id="numM1" type="number" min="0.5" max="5.0" step="0.05" />
+              </div>
+            </div>
+
+            <div class="slider" data-key="m2">
+              <label class="slider-label" for="rngM2">Mass 2 (kg)</label>
+              <div class="slider-row">
+                <input id="rngM2" type="range" min="0.5" max="5.0" step="0.05" />
+                <input id="numM2" type="number" min="0.5" max="5.0" step="0.05" />
+              </div>
+            </div>
+
+            <div class="slider" data-key="g">
+              <label class="slider-label" for="rngG">Gravity (m/s^2)</label>
+              <div class="slider-row">
+                <input id="rngG" type="range" min="0.5" max="25.0" step="0.1" />
+                <input id="numG" type="number" min="0.5" max="25.0" step="0.1" />
+              </div>
+            </div>
+
+            <div class="slider" data-key="damping">
+              <label class="slider-label" for="rngD">Damping</label>
+              <div class="slider-row">
+                <input id="rngD" type="range" min="0.0" max="0.05" step="0.0005" />
+                <input id="numD" type="number" min="0.0" max="0.05" step="0.0005" />
+              </div>
+            </div>
+
+            <div class="slider" data-key="timeScale">
+              <label class="slider-label" for="rngT">Time Scale</label>
+              <div class="slider-row">
+                <input id="rngT" type="range" min="0.25" max="3.0" step="0.05" />
+                <input id="numT" type="number" min="0.25" max="3.0" step="0.05" />
+              </div>
+            </div>
+            </div>
+          </div>
+        </aside>
+
+        <button id="panelToggle" class="panel-toggle" aria-label="Toggle panel" title="Toggle panel">
+          <span id="panelToggleIcon">◀</span>
+        </button>
+
+        <div id="about" class="about hidden" role="dialog" aria-modal="true" aria-label="Simulation Guide">
+          <div class="about-box">
+            <div class="about-title">Simulation Guide</div>
+            <div class="about-content">
+              <div class="about-section">
+                <h3>Hotkeys</h3>
+                <div><span class="key">Space</span> Start / Pause simulation</div>
+                <div><span class="key">R</span> Reset all parameters to defaults</div>
+                <div><span class="key">N</span> Randomize initial conditions</div>
+                <div><span class="key">T</span> Toggle motion trail visibility</div>
+                <div><span class="key">C</span> Clear current trail history</div>
+                <div><span class="key">E</span> Toggle energy / drift display</div>
+                <div><span class="key">D</span> Toggle damping (friction)</div>
+                <div><span class="key">S</span> Cycle time scale (0.25x - 2.0x)</div>
+                <div><span class="key">+/-</span> Increase / Decrease gravity</div>
+              </div>
+
+              <div class="about-section">
+                <h3>Mouse Controls</h3>
+                <div><span class="key">Drag</span> Move masses (only when paused)</div>
+                <div class="sub-item">- End mass: Inverse Kinematics</div>
+                <div class="sub-item">- Mid mass: Adjust angle</div>
+                <div><span class="key">Click</span> Edit slider values directly</div>
+                <div><span class="key">Panel</span> Toggle control panel visibility</div>
+              </div>
+
+              <div class="about-section">
+                <h3>UI Buttons</h3>
+                <div><span class="key">Step</span> Frame-by-frame (when paused)</div>
+                <div><span class="key">Arrows</span> Toggle velocity vectors</div>
+              </div>
+
+              <div class="about-section">
+                <h3>Recording</h3>
+                <div><span class="key">Record</span> Captures CSV data while the simulation is playing</div>
+                <div class="sub-item">- If paused, recording shows “Waiting for sim” until you press Play</div>
+                <div class="sub-item">- Stop recording to enable the download button (CSV opens in Excel/Sheets)</div>
+              </div>
+            </div>
+            <div class="about-actions">
+              <button id="btnCloseAbout" class="btn btn-primary">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
